@@ -22,4 +22,9 @@ class Transaksi extends Model
     {
         return $this->hasMany(ListCicilTransaksi::class, 'kode');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

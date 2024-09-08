@@ -14,11 +14,9 @@ return new class extends Migration
         Schema::create('siswa', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->string('nama');
             $table->text('alamat');
             $table->text('tempat_lahir');
             $table->string('tanggal_lahir');
-            $table->enum('jk', ['l', 'p']);
             $table->integer('agama_id');
             $table->string('foto_siswa')->nullable();
             $table->string('foto_akte_kelahiran')->nullable();

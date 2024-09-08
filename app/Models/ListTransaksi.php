@@ -13,7 +13,7 @@ class ListTransaksi extends Model
 
     protected $guarded = [''];
 
-    public function kategoriTransaksi()
+    public function kategori()
     {
         return $this->belongsTo(KategoriTransaksi::class, 'kategori_id');
     }

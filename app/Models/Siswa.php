@@ -17,4 +17,9 @@ class Siswa extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function agama()
+    {
+        return $this->belongsTo(Agama::class, 'agama_id');
+    }
 }
