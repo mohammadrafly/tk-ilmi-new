@@ -59,21 +59,11 @@
                     </table>
                 </div>
 
-                <div class="mb-6 mt-10">
-                    <label for="user_id" class="block text-sm font-medium text-[#051951]">User</label>
-                    <select id="user_id" name="user_id" class="w-full border border-gray-300 shadow-sm px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f18e00] focus:border-transparent" required>
-                        <option value="">Select User</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="mb-6">
+                <div class="mb-6 mt-5">
                     <label for="metode" class="block text-sm font-medium text-[#051951]">Metode</label>
                     <select id="metode" name="metode" class="w-full border border-gray-300 shadow-sm px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f18e00] focus:border-transparent" required>
                         <option value="cash">Cash</option>
-                        <option value="transfer">Transfer</option>
+                        <option value="online">Online</option>
                     </select>
                 </div>
 
@@ -133,6 +123,7 @@
                 updateSelectedCategories();
                 totalHargaElement.textContent = totalHarga.toLocaleString('id-ID', { minimumFractionDigits: 2 });
                 updateSelectedKategoriIds();
+                updateJenisField();
             });
         });
 
@@ -160,6 +151,7 @@
                     updateSelectedCategories();
                     totalHargaElement.textContent = totalHarga.toLocaleString('id-ID', { minimumFractionDigits: 2 });
                     updateSelectedKategoriIds();
+                    updateJenisField();
                 });
             });
         }
@@ -173,6 +165,24 @@
                 input.value = category.id;
                 selectedKategoriIdsDiv.appendChild(input);
             });
+        }
+
+        function updateJenisField() {
+            const isSppOnly = selectedCategories.length === 1 && selectedCategories[0].name === 'SPP';
+            const cicilOption = jenisSelect.querySelector('option[value="cicil"]');
+            if (isSppOnly) {
+                jenisSelect.value = 'penuh';
+                if (cicilOption) {
+                    cicilOption.remove();
+                }
+            } else {
+                if (!cicilOption && selectedCategories.length > 1) {
+                    const option = document.createElement('option');
+                    option.value = 'cicil';
+                    option.textContent = 'Cicil';
+                    jenisSelect.appendChild(option);
+                }
+            }
         }
     });
 </script>

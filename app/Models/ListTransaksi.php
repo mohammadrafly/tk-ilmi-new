@@ -17,4 +17,9 @@ class ListTransaksi extends Model
     {
         return $this->belongsTo(KategoriTransaksi::class, 'kategori_id');
     }
+
+    public function transaksi()
+    {
+        return $this->belongsTo(Transaksi::class, 'kode', 'kode');
+    }
 }

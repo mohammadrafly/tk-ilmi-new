@@ -40,7 +40,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('dashboard.transaksi.edit', $transaksi->kode) }}" class="text-[#f18e00] hover:text-[#d77900] transition duration-300 ease-in-out">View</a>
+                            <a href="{{ route('dashboard.transaksi.show', $transaksi->kode) }}" class="text-[#f18e00] hover:text-[#d77900] transition duration-300 ease-in-out">View</a>
                             <form action="{{ route('dashboard.transaksi.delete', $transaksi->id) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')

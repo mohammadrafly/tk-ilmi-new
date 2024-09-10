@@ -23,6 +23,10 @@
         </main>
     </div>
 
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
     @vite('resources/js/app.js')
+    @yield('script')
 </body>
 </html>

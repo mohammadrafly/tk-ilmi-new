@@ -11,6 +11,9 @@ use App\Models\ListTransaksi;
 use App\Models\ListCicilTransaksi;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class TransaksiController extends Controller
 {
@@ -33,8 +36,7 @@ class TransaksiController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-            'metode' => 'required|in:cash,transfer',
+            'metode' => 'required|in:cash,online',
             'jenis' => 'required|in:penuh,cicil',
             'kategori_ids' => 'nullable|array',
             'kategori_ids.*' => 'exists:kategori_transaksi,id',
@@ -47,34 +49,51 @@ class TransaksiController extends Controller
 
         try {
             $kode = Str::uuid()->toString();
-
-            $transaksi = Transaksi::create([
-                'kode' => $kode,
-                'user_id' => $request->input('user_id'),
-                'keterangan' => '-',
-                'metode' => $request->input('metode'),
-                'jenis' => $request->input('jenis'),
-                'status' => '0',
-            ]);
-
             $kategoriIds = $request->input('kategori_ids', []);
-
             $totalHarga = 0;
+
             foreach ($kategoriIds as $kategoriId) {
                 $kategori = KategoriTransaksi::find($kategoriId);
+
                 if ($kategori) {
+                    $startOfMonth = Carbon::now()->startOfMonth();
+
+                    $interval = (int) $kategori->interval;
+
+                    $intervalEnd = $startOfMonth->copy()->addDays($interval);
+
+                    $existingTransaction = ListTransaksi::where('kategori_id', $kategoriId)
+                        ->whereBetween('created_at', [$startOfMonth, $intervalEnd])
+                        ->whereHas('transaksi', function ($query) {
+                            $query->where('user_id', Auth::user()->id);
+                        })
+                        ->exists();
+
+                    if ($existingTransaction) {
+                        return redirect()->back()->withErrors(['kategori_ids' => 'Transaction for this category already exists within the interval from the start of the month.']);
+                    }
+
                     ListTransaksi::create([
-                        'kode' => $transaksi->kode,
+                        'kode' => $kode,
                         'kategori_id' => $kategoriId,
                         'harga' => $kategori->harga,
                     ]);
+
                     $totalHarga += $kategori->harga;
                 }
             }
 
+            $transaksi = Transaksi::create([
+                'kode' => $kode,
+                'user_id' => Auth::user()->id,
+                'keterangan' => '-',
+                'metode' => $request->input('metode'),
+                'jenis' => $request->input('jenis'),
+                'status' => $request->input('jenis') === 'cicil' ? '1' : '0',
+            ]);
+
             if ($transaksi->jenis === 'cicil') {
                 $bulan = $request->input('bulan');
-
                 $cicilan = $totalHarga / $bulan;
                 $startDate = Carbon::now();
 
@@ -94,11 +113,11 @@ class TransaksiController extends Controller
                 'redirect' => route('dashboard.transaksi.index')
             ]);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Failed to create transaksi.'. $e]);
+            return redirect()->back()->withErrors(['error' => 'Failed to create transaksi. ' . $e->getMessage()]);
         }
     }
 
-    public function update(Request $request, $kode)
+    public function show(Request $request, $kode)
     {
         if ($request->isMethod('GET')) {
             $transaksi = Transaksi::with('user')->where('kode', $kode)->firstOrFail();
@@ -114,30 +133,6 @@ class TransaksiController extends Controller
                 'totalHarga' => $totalHarga,
                 'title' => 'Detail Transaksi'
             ]);
-        }
-
-        $transaksi = Transaksi::where('kode', $kode)->get();
-
-        $validator = Validator::make($request->all(), [
-            'bukti_pembayaran' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'status' => 'required|integer|in:0,1,2',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        try {
-            $transaksi->update([
-                'status' => $request->input('status'),
-            ]);
-
-            return back()->with([
-                'success' => 'Transaksi status updated successfully.',
-                'redirect' => route('dashboard.transaksi.index')
-            ]);
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Failed to update transaksi status.']);
         }
     }
 
@@ -160,60 +155,202 @@ class TransaksiController extends Controller
         }
     }
 
-    public function transferPaymentTransaksi(Request $request, $transaksiId)
+    public function checkPayment(Request $request)
     {
-        if ($request->isMethod('GET')) {
-            $transaksi = Transaksi::findOrFail($transaksiId);
-            return view('dashboard.transaksi.payment', [
-                'title' => 'Transfer Payment',
-                'transaksi' => $transaksi
+        if ($request->isMethod('POST')) {
+            $kode = $request->input('kode');
+            $payments = Transaksi::with('user')->where('kode', $kode)->get();
+
+            if ($payments->isEmpty()) {
+                return view('dashboard.transaksi.approvepayment', [
+                    'title' => 'Approve Payment',
+                    'kode' => $kode,
+                    'error' => 'No transactions found for the code ' . $kode,
+                ]);
+            }
+
+            return view('dashboard.transaksi.approvepayment', [
+                'title' => 'Approve Payment',
+                'payments' => $payments,
             ]);
         }
 
-        $request->validate([
-            'bukti_pembayaran' => 'required|image|max:2048',
-            'status' => '1'
+        return view('dashboard.transaksi.approvepayment', [
+            'title' => 'Approve Payment',
         ]);
-
-        $transaksi = Transaksi::findOrFail($transaksiId);
-
-        if ($request->hasFile('bukti_pembayaran')) {
-            $file = $request->file('bukti_pembayaran');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('bukti_pembayarans', $filename, 'public');
-
-            $transaksi->bukti_pembayaran = $filename;
-            $transaksi->save();
-        }
-
-        return redirect()->route('dashboard.transaksi.index')->with('success', 'Payment proof uploaded successfully!');
     }
 
-    public function transferPaymentCicil(Request $request, $cicilId)
+    public function checkPaymentDetail($kode)
     {
-        if ($request->isMethod('GET')) {
-            $transaksi = ListCicilTransaksi::findOrFail($cicilId);
-            return view('dashboard.transaksi.paymentcicil', [
-                'title' => 'Transfer Payment',
-                'transaksi' => $transaksi
-            ]);
+        $transaksi = Transaksi::with('user')->where('kode', $kode)->firstOrFail();
+        $listTransaksi = ListTransaksi::with('kategori')->where('kode', $kode)->get();
+        $listCicilTransaksi = ListCicilTransaksi::where('kode', $kode)->get();
+
+        $totalHarga = $listTransaksi->sum('harga');
+
+        return view('dashboard.transaksi.details', [
+            'transaksi' => $transaksi,
+            'listTransaksi' => $listTransaksi,
+            'listCicilTransaksi' => $listCicilTransaksi,
+            'totalHarga' => $totalHarga,
+            'title' => 'Detail Transaksi'
+        ]);
+    }
+
+    public function approvePaymentPenuh($id)
+    {
+        $transaksi = Transaksi::findOrFail($id);
+
+        if ($transaksi->jenis !== 'penuh') {
+            return redirect()->back()->with('error', 'Invalid jenis transaksi.');
         }
 
-        $request->validate([
-            'bukti_pembayaran' => 'required|image|max:2048',
-        ]);
+        $transaksi->status = '2';
+        $transaksi->save();
 
-        $transaksi = ListCicilTransaksi::findOrFail($cicilId);
+        return redirect()->route('dashboard.transaksi.check.detail', $transaksi->kode)
+                         ->with('success', 'Full cash payment approved successfully.');
+    }
 
-        if ($request->hasFile('bukti_pembayaran')) {
-            $file = $request->file('bukti_pembayaran');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('bukti_pembayarans', $filename, 'public');
+    public function approvePaymentCicil($id)
+    {
+        $cicil = ListCicilTransaksi::findOrFail($id);
 
-            $transaksi->bukti_pembayaran = $filename;
+        if ($cicil->status === 'lunas') {
+            return redirect()->back()->with('error', 'Transaksi already lunas.');
+        }
+
+        $cicil->status = 'lunas';
+        $cicil->save();
+
+        $transaksi = Transaksi::where('kode', $cicil->kode)->first();
+        $allCicilLunas = ListCicilTransaksi::where('kode', $transaksi->kode)
+                                          ->where('status', '!=', 'lunas')
+                                          ->count() === 0;
+
+        if ($allCicilLunas) {
+            $transaksi->status = '2';
             $transaksi->save();
         }
 
-        return redirect()->route('dashboard.transaksi.index')->with('success', 'Payment proof uploaded successfully!');
+        return redirect()->route('dashboard.transaksi.check.detail', $cicil->kode)
+                         ->with('success', 'Cicil payment approved successfully.');
+    }
+
+    public function paymentOnlinePenuh($kode)
+    {
+        $data = Transaksi::with('user', 'siswa')->where('kode', $kode)->first();
+
+        $listItem = ListTransaksi::with('kategori')->where('kode', $kode)->get();
+        $totalHarga = $listItem->sum('harga');
+
+        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+        Config::$isProduction = false;
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $itemDetails = [];
+        foreach ($listItem as $item) {
+            $itemDetails[] = [
+                'id' => $item->kategori->id,
+                'price' => $item->harga,
+                'quantity' => 1,
+                'name' => $item->kategori->nama,
+            ];
+        }
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $data->kode,
+                'gross_amount' => $totalHarga,
+            ],
+            'customer_details' => [
+                'first_name' => $data->user->name,
+                'email' => $data->user->email,
+                'billing_address' => [
+                    'address' => $data->siswa->alamat,
+                ],
+            ],
+            'item_details' => $itemDetails,
+            'callbacks' => [
+                'finish' => 'http://localhost:8080/api/payment/penuh/' . $data->kode . '/callback/success/',
+            ],
+        ];
+
+        return response()->json(Snap::getSnapToken($params));
+    }
+
+    public function callbackSuccessPaymentOnlinePenuh($kode)
+    {
+        $data = Transaksi::where('kode', $kode)->first();
+        $data->update(['status' => '2']);
+
+        return redirect()->route('dashboard.transaksi.check.detail', $kode)->with('success', 'Pembayaran Berhasil!');
+    }
+
+    public function paymentOnlineCicil($id)
+    {
+        $listCicilTransaksi = ListCicilTransaksi::where('id', $id)->first();
+        $data = Transaksi::with('user', 'siswa')->where('kode', $listCicilTransaksi->kode)->first();
+
+        $totalHarga = intval($listCicilTransaksi->cicilan);
+
+        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+        Config::$isProduction = false;
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $bulan = $listCicilTransaksi->bulan === '1' ? 'Bulan Pertama' : 'Bulan Kedua';
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => 'INSTALLMENT-'. $listCicilTransaksi->id . time() ,
+                'gross_amount' => $totalHarga,
+            ],
+            'customer_details' => [
+                'first_name' => $data->user->name,
+                'email' => $data->user->email,
+                'billing_address' => [
+                    'address' => $data->siswa->alamat,
+                ],
+            ],
+            'item_details' => [
+                [
+                    'id' => $listCicilTransaksi->id,
+                    'price' => $totalHarga,
+                    'quantity' => 1,
+                    'name' => $bulan,
+                ],
+            ],
+            'callbacks' => [
+                'finish' => 'http://localhost:8080/api/payment/cicil/' . $listCicilTransaksi->id . '/callback/success/',
+            ],
+        ];
+
+        return response()->json(Snap::getSnapToken($params));
+    }
+
+    public function callbackSuccessPaymentOnlineCicil($id)
+    {
+        $cicil = ListCicilTransaksi::findOrFail($id);
+
+        if ($cicil->status === 'lunas') {
+            return redirect()->back()->with('error', 'Transaksi already lunas.');
+        }
+
+        $cicil->status = 'lunas';
+        $cicil->save();
+
+        $transaksi = Transaksi::where('kode', $cicil->kode)->first();
+        $allCicilLunas = ListCicilTransaksi::where('kode', $transaksi->kode)
+                                          ->where('status', '!=', 'lunas')
+                                          ->count() === 0;
+
+        if ($allCicilLunas) {
+            $transaksi->status = '2';
+            $transaksi->save();
+        }
+
+        return redirect()->route('dashboard.transaksi.check.detail', $cicil->kode)->with('success', 'Pembayaran Berhasil!');
     }
 }

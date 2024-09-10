@@ -18,7 +18,6 @@ return new class extends Migration
             $table->text('tempat_lahir');
             $table->string('tanggal_lahir');
             $table->integer('agama_id');
-            $table->string('foto_siswa')->nullable();
             $table->string('foto_akte_kelahiran')->nullable();
             $table->string('nama_orang_tua');
             $table->string('alamat_orang_tua');

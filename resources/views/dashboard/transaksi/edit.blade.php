@@ -18,8 +18,8 @@
                 <div class="text-lg"><strong class="text-[#051951]">Jenis:</strong> <span class="text-gray-800">{{ ucfirst($transaksi->jenis) }}</span></div>
                 <div class="text-lg">
                     <strong class="text-[#051951]">Status:</strong>
-                    <span class="px-2 py-1 rounded-lg {{ $transaksi->status === 'completed' ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}">
-                        {{ ucfirst($transaksi->status == '0' ? 'Belum Lunas' : 'Cicil') }}
+                    <span class="px-2 py-1 rounded-lg {{ $transaksi->status === '2' ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}">
+                        {{ ucfirst($transaksi->status == '0' ? 'Belum Lunas' : 'Lunas') }}
                     </span>
                 </div>
             </div>
@@ -61,7 +61,6 @@
                             <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Cicilan</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Expired</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Status</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Action</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -75,54 +74,30 @@
                                         {{ ucfirst($item->status == 'belum_lunas' ? 'Belum Lunas' : 'Lunas') }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    @if($item->status !== 'lunas')
-                                        @if($transaksi->metode === 'cash')
-                                            <div class="text-center">
-                                                <p class="text-sm text-gray-600">For cash payments, please visit the TU office with the following transaction code:</p>
-                                                <p class="text-lg font-bold text-[#051951]">{{ $transaksi->kode }}</p>
-                                                <ul class="list-disc list-inside text-left text-gray-600 mt-2">
-                                                    <li>Visit the TU office during office hours.</li>
-                                                    <li>Provide your transaction code: <strong class="text-[#051951]">{{ $transaksi->kode }}</strong>.</li>
-                                                    <li>Complete the payment with the cash amount specified for this installment.</li>
-                                                    <li>Keep the receipt for your records.</li>
-                                                </ul>
-                                            </div>
-                                        @else
-                                            <a href="{{ route('dashboard.transaksi.pay.cicil', $item->id) }}" class="bg-[#f18e00] text-white px-6 py-3 rounded-lg shadow-md hover:bg-[#d77900] transition duration-300 ease-in-out font-semibold">
-                                                Upload Payment Proof
-                                            </a>
-                                        @endif
-                                    @endif
-                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-        @else
-            @if($transaksi->metode === 'cash')
-                <div class="mt-8 text-center">
-                    <p class="text-lg font-semibold text-gray-800 mb-4">For cash payments, please visit the TU office with the following transaction code:</p>
-                    <p class="text-2xl font-bold text-[#051951]">{{ $transaksi->kode }}</p>
-                    <p class="text-sm text-gray-600 mt-4">Instructions for cash payment:</p>
-                    <ul class="list-disc list-inside text-left text-gray-600">
-                        <li>Visit the TU office during office hours.</li>
-                        <li>Provide your transaction code: <strong class="text-[#051951]">{{ $transaksi->kode }}</strong>.</li>
-                        <li>Complete the payment with the cash amount specified.</li>
-                        <li>Keep the receipt for your records.</li>
-                    </ul>
-                </div>
-            @else
-                @if($transaksi->status !== '2')
-                    <div class="mt-8 text-center">
-                        <a href="{{ route('dashboard.transaksi.pay', $transaksi->id) }}" class="bg-[#f18e00] text-white px-6 py-3 rounded-lg shadow-md hover:bg-[#d77900] transition duration-300 ease-in-out font-semibold">
-                            Upload Payment Proof
-                        </a>
-                    </div>
-                @endif
-            @endif
         @endif
+
+        <div class="mt-8 bg-yellow-100 p-6 rounded-lg border border-yellow-300 shadow-md">
+            <div class="flex items-center mb-4">
+                <svg class="w-8 h-8 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.953 7.93l-3.853 3.853a.76.76 0 0 0 0 1.065l3.853 3.853a.76.76 0 0 0 1.065 0l3.853-3.853a.76.76 0 0 0 0-1.065l-3.853-3.853a.76.76 0 0 0-1.065 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-[#051951]">Payment Instructions</h3>
+            </div>
+            @if($transaksi->metode === 'cash')
+                <p class="text-gray-800 mb-4">Please make your payment in cash at the TU (Tata Usaha) office using the following transaction code:</p>
+                <p class="text-lg font-bold text-[#051951]">Kode: <span class="text-gray-800">{{ $transaksi->kode }}</span></p>
+                <p class="mt-2">Ensure you bring this code with you to help us process your payment smoothly.</p>
+            @else
+                <p class="text-gray-800 mb-4">Please make your payment online using the following transaction code:</p>
+                <p class="text-lg font-bold text-[#051951]">Kode: <span class="text-gray-800">{{ $transaksi->kode }}</span></p>
+                <p class="mt-2">Ensure you include this code in your payment details to ensure proper processing.</p>
+            @endif
+        </div>
     </div>
 
     <a href="{{ route('dashboard.transaksi.index') }}" class="inline-block bg-[#f18e00] text-white px-6 py-3 rounded-lg shadow-md hover:bg-[#d77900] transition duration-300 ease-in-out font-semibold">

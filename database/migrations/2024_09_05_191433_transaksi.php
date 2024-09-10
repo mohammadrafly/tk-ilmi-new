@@ -16,10 +16,9 @@ return new class extends Migration
             $table->string('kode')->unique();
             $table->integer('user_id');
             $table->text('keterangan');
-            $table->enum('metode', ['cash', 'transfer']);
+            $table->enum('metode', ['cash', 'online']);
             $table->enum('jenis', ['penuh', 'cicil']);
             $table->enum('status', ['0', '1', '2']);
-            $table->string('bukti_pembayaran')->nullable();
             $table->timestamps();
         });
 
@@ -46,7 +45,6 @@ return new class extends Migration
             $table->string('cicilan');
             $table->string('expired');
             $table->enum('status', ['lunas', 'belum_lunas']);
-            $table->string('bukti_pembayaran')->nullable();
             $table->timestamps();
         });
     }

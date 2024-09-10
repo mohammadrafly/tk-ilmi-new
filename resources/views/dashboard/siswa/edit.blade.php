@@ -83,22 +83,6 @@
         </div>
 
         <div class="mb-6">
-            <label for="foto_siswa" class="block text-sm font-medium text-[#051951]">Foto Siswa</label>
-            <div class="mt-2">
-                <input id="foto_siswa" type="file" name="foto_siswa"
-                       class="w-full border {{ $errors->has('foto_siswa') ? 'border-red-500' : 'border-gray-300' }} shadow-sm px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f18e00] focus:border-transparent">
-                @if ($siswa->foto_siswa)
-                    <div class="mt-2">
-                        <img src="{{ Storage::url($siswa->foto_siswa) }}" alt="Current photo" class="w-32 h-32 object-cover">
-                    </div>
-                @endif
-                @error('foto_siswa')
-                    <div class="text-red-500 text-sm mt-2">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
-
-        <div class="mb-6">
             <label for="foto_akte_kelahiran" class="block text-sm font-medium text-[#051951]">Foto Akte Kelahiran</label>
             <div class="mt-2">
                 <input id="foto_akte_kelahiran" type="file" name="foto_akte_kelahiran"

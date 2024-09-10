@@ -35,7 +35,6 @@ class SiswaController extends Controller
             'tempat_lahir' => 'required|string|max:255',
             'tanggal_lahir' => 'required|date',
             'agama_id' => 'required|exists:agama,id',
-            'foto_siswa' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'foto_akte_kelahiran' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'nama_orang_tua' => 'required|string|max:255',
             'alamat_orang_tua' => 'required|string|max:255',
@@ -46,7 +45,6 @@ class SiswaController extends Controller
         }
 
         try {
-            $fotoSiswaPath = $request->hasFile('foto_siswa') ? $request->file('foto_siswa')->store('foto_siswa', 'public') : null;
             $fotoAkteKelahiranPath = $request->hasFile('foto_akte_kelahiran') ? $request->file('foto_akte_kelahiran')->store('foto_akte_kelahiran', 'public') : null;
 
             Siswa::create([
@@ -55,7 +53,6 @@ class SiswaController extends Controller
                 'tempat_lahir' => $request->input('tempat_lahir'),
                 'tanggal_lahir' => $request->input('tanggal_lahir'),
                 'agama_id' => $request->input('agama_id'),
-                'foto_siswa' => $fotoSiswaPath,
                 'foto_akte_kelahiran' => $fotoAkteKelahiranPath,
                 'nama_orang_tua' => $request->input('nama_orang_tua'),
                 'alamat_orang_tua' => $request->input('alamat_orang_tua'),
@@ -88,7 +85,6 @@ class SiswaController extends Controller
             'tempat_lahir' => 'required|string|max:255',
             'tanggal_lahir' => 'required|date',
             'agama_id' => 'required|exists:agama,id',
-            'foto_siswa' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'foto_akte_kelahiran' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'nama_orang_tua' => 'required|string|max:255',
             'alamat_orang_tua' => 'required|string|max:255',
@@ -107,13 +103,6 @@ class SiswaController extends Controller
             $siswa->agama_id = $request->input('agama_id');
             $siswa->nama_orang_tua = $request->input('nama_orang_tua');
             $siswa->alamat_orang_tua = $request->input('alamat_orang_tua');
-
-            if ($request->hasFile('foto_siswa')) {
-                if ($siswa->foto_siswa) {
-                    Storage::disk('public')->delete($siswa->foto_siswa);
-                }
-                $siswa->foto_siswa = $request->file('foto_siswa')->store('foto_siswa', 'public');
-            }
 
             if ($request->hasFile('foto_akte_kelahiran')) {
                 if ($siswa->foto_akte_kelahiran) {
@@ -137,9 +126,6 @@ class SiswaController extends Controller
     {
         try {
             $siswa = Siswa::findOrFail($id);
-            if ($siswa->foto_siswa) {
-                Storage::disk('public')->delete($siswa->foto_siswa);
-            }
             if ($siswa->foto_akte_kelahiran) {
                 Storage::disk('public')->delete($siswa->foto_akte_kelahiran);
             }

@@ -27,4 +27,9 @@ class Transaksi extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function siswa()
+    {
+        return $this->hasOneThrough(Siswa::class, User::class, 'id', 'user_id', 'user_id', 'id');
+    }
 }

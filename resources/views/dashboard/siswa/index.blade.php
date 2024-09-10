@@ -20,7 +20,6 @@
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Tempat Lahir</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Tanggal Lahir</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Agama</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Foto Siswa</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Foto Akte Kelahiran</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Nama Orang Tua</th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Alamat Orang Tua</th>
@@ -37,13 +36,6 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $siswa->tempat_lahir }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $siswa->tanggal_lahir }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $siswa->agama->nama }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            @if($siswa->foto_siswa)
-                                <img src="{{ Storage::url($siswa->foto_siswa) }}" alt="Foto Siswa" class="w-16 h-16 object-cover">
-                            @else
-                                <span class="text-gray-400">No Photo</span>
-                            @endif
-                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             @if($siswa->foto_akte_kelahiran)
                                 <img src="{{ Storage::url($siswa->foto_akte_kelahiran) }}" alt="Foto Akte Kelahiran" class="w-16 h-16 object-cover">
