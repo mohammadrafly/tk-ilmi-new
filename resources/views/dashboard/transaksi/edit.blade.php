@@ -61,6 +61,7 @@
                             <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Cicilan</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Expired</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Action</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -74,30 +75,52 @@
                                         {{ ucfirst($item->status == 'belum_lunas' ? 'Belum Lunas' : 'Lunas') }}
                                     </span>
                                 </td>
+                                <td class="px-6 py-4">
+                                    @if($item->status !== 'lunas')
+                                        @if ($transaksi->metode === 'online')
+                                            @if (Auth::user()->role === 'siswa')
+                                                @php
+                                                    $previousPaymentsCompleted = $loop->index === 0 || $listCicilTransaksi[$loop->index - 1]->status === 'lunas';
+                                                @endphp
+                                                <button id="payButtonCicil-{{ $item->id }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-semibold payInstallmentButton {{ $previousPaymentsCompleted ? '' : 'opacity-50 cursor-not-allowed' }}" data-id="{{ $item->id }}" {{ $previousPaymentsCompleted ? '' : 'disabled' }}>
+                                                    Pay Now
+                                                </button>
+                                            @endif
+                                        @endif
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+        @else
+            @if($transaksi->status !== '2')
+                @if ($transaksi->metode === 'online')
+                    @if (Auth::user()->role === 'siswa')
+                        <div class="mt-4 text-center">
+                            <button id="payButton" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-semibold">
+                                Pay Now
+                            </button>
+                        </div>
+                    @endif
+                @else
+                    <div class="mt-8 bg-yellow-100 p-6 rounded-lg border border-yellow-300 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <svg class="w-8 h-8 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.953 7.93l-3.853 3.853a.76.76 0 0 0 0 1.065l3.853 3.853a.76.76 0 0 0 1.065 0l3.853-3.853a.76.76 0 0 0 0-1.065l-3.853-3.853a.76.76 0 0 0-1.065 0z"></path>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#051951]">Payment Instructions</h3>
+                        </div>
+                        <p class="text-gray-800 mb-4">Please make your payment in cash at the TU (Tata Usaha) office using the following transaction code:</p>
+                        <p class="text-lg font-bold text-[#051951]">Kode: <span class="text-gray-800">{{ $transaksi->kode }}</span></p>
+                        <p class="mt-2">Ensure you bring this code with you to help us process your payment smoothly.</p>
+                    </div>
+                @endif
+            @endif
         @endif
 
-        <div class="mt-8 bg-yellow-100 p-6 rounded-lg border border-yellow-300 shadow-md">
-            <div class="flex items-center mb-4">
-                <svg class="w-8 h-8 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.953 7.93l-3.853 3.853a.76.76 0 0 0 0 1.065l3.853 3.853a.76.76 0 0 0 1.065 0l3.853-3.853a.76.76 0 0 0 0-1.065l-3.853-3.853a.76.76 0 0 0-1.065 0z"></path>
-                </svg>
-                <h3 class="text-xl font-semibold text-[#051951]">Payment Instructions</h3>
-            </div>
-            @if($transaksi->metode === 'cash')
-                <p class="text-gray-800 mb-4">Please make your payment in cash at the TU (Tata Usaha) office using the following transaction code:</p>
-                <p class="text-lg font-bold text-[#051951]">Kode: <span class="text-gray-800">{{ $transaksi->kode }}</span></p>
-                <p class="mt-2">Ensure you bring this code with you to help us process your payment smoothly.</p>
-            @else
-                <p class="text-gray-800 mb-4">Please make your payment online using the following transaction code:</p>
-                <p class="text-lg font-bold text-[#051951]">Kode: <span class="text-gray-800">{{ $transaksi->kode }}</span></p>
-                <p class="mt-2">Ensure you include this code in your payment details to ensure proper processing.</p>
-            @endif
-        </div>
+
     </div>
 
     <a href="{{ route('dashboard.transaksi.index') }}" class="inline-block bg-[#f18e00] text-white px-6 py-3 rounded-lg shadow-md hover:bg-[#d77900] transition duration-300 ease-in-out font-semibold">
@@ -105,4 +128,108 @@
     </a>
 </div>
 
+@endsection
+
+
+@section('script')
+<script>
+    $(document).ready(function() {
+        $('#payButton').click(function() {
+            handlePayment();
+        });
+
+        $('#payButtonCicil').click(function() {
+            var installmentId = $(this).data('id');
+            handlePaymentCicil(installmentId);
+        });
+
+        function handlePayment() {
+            $.ajax({
+                url: '{{ url('api/payment/penuh/'. $transaksi->kode) }}',
+                method: 'POST',
+                success: function(response) {
+                    window.snap.pay(response, {
+                        onSuccess: function(result) {
+                            console.log('Payment Success', result);
+                            updatePaymentStatus(result);
+                        },
+                        onPending: function(result) {
+                            alert("Payment pending!"); console.log(result);
+                        },
+                        onError: function(result) {
+                            alert("Payment failed!"); console.log(result);
+                        },
+                        onClose: function() {
+                            alert('Payment pop-up closed without finishing the payment');
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function updatePaymentStatus(result) {
+            $.ajax({
+                url: '{{ url('/api/payment/penuh/'. $transaksi->kode .'/callback/success') }}',
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                data: result,
+                success: function(response) {
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function handlePaymentCicil(installmentId) {
+            $.ajax({
+                url: `{{ url('api/payment/cicil/') }}/${installmentId}`,
+                method: 'POST',
+                success: function(response) {
+                    window.snap.pay(response, {
+                        onSuccess: function(result) {
+                            console.log('Payment Success', result);
+                            updatePaymentStatusCicil(result, installmentId);
+                        },
+                        onPending: function(result) {
+                            alert("Payment pending!"); console.log(result);
+                        },
+                        onError: function(result) {
+                            alert("Payment failed!"); console.log(result);
+                        },
+                        onClose: function() {
+                            alert('Payment pop-up closed without finishing the payment');
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function updatePaymentStatusCicil(result, id) {
+            $.ajax({
+                url: `{{ url('/api/payment/cicil/${id}/callback/success') }}`,
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                data: result,
+                success: function(response) {
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+    });
+</script>
 @endsection

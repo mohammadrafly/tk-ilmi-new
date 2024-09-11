@@ -67,7 +67,9 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
 
     Route::prefix('transaksi')->controller(TransaksiController::class)->group(function() {
         Route::get('/', 'index')->name('dashboard.transaksi.index');
-        Route::match(['POST', 'GET'], 'create', 'create')->name('dashboard.transaksi.create');
+        Route::middleware('roleMiddleware:siswa')->group(function() {
+            Route::match(['POST', 'GET'], 'create', 'create')->name('dashboard.transaksi.create');
+        });
         Route::match(['PUT', 'GET'], '/{id}/show', 'show')->name('dashboard.transaksi.show');
         Route::delete('/{id}/delete', 'delete')->name('dashboard.transaksi.delete');
 
@@ -78,14 +80,6 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
     });
 
     Route::middleware('roleMiddleware:admin')->group(function() {
-
-    });
-
-    Route::middleware('roleMiddleware:guru')->group(function() {
-
-    });
-
-    Route::middleware('roleMiddleware:siswa')->group(function() {
 
     });
 });

@@ -163,20 +163,20 @@ class TransaksiController extends Controller
 
             if ($payments->isEmpty()) {
                 return view('dashboard.transaksi.approvepayment', [
-                    'title' => 'Approve Payment',
+                    'title' => 'Cari Transaksi',
                     'kode' => $kode,
                     'error' => 'No transactions found for the code ' . $kode,
                 ]);
             }
 
             return view('dashboard.transaksi.approvepayment', [
-                'title' => 'Approve Payment',
+                'title' => 'Cari Transaksi',
                 'payments' => $payments,
             ]);
         }
 
         return view('dashboard.transaksi.approvepayment', [
-            'title' => 'Approve Payment',
+            'title' => 'Cari Transaksi',
         ]);
     }
 

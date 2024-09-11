@@ -6,15 +6,21 @@
     <nav class="flex-1">
         <ul class="space-y-2 p-4">
             @php
-                $links = [
-                    ['route' => 'dashboard.index', 'label' => 'Home'],
-                    ['route' => 'dashboard.user.index', 'label' => 'Users'],
-                    ['route' => 'dashboard.agama.index', 'label' => 'Agama'],
-                    ['route' => 'dashboard.siswa.index', 'label' => 'Siswa'],
-                    ['route' => 'dashboard.transaksi.index', 'label' => 'Transaksi'],
-                    ['route' => 'dashboard.transaksi.check', 'label' => 'Cek Transaksi'],
-                    ['route' => 'dashboard.kategori.index', 'label' => 'Kategori Transaksi'],
-                ];
+                $links = [];
+
+                if (Auth::user()->role === 'siswa') {
+                    $links[] = ['route' => 'dashboard.transaksi.index', 'label' => 'Transaksi'];
+                } else {
+                    $links = [
+                        ['route' => 'dashboard.index', 'label' => 'Home'],
+                        ['route' => 'dashboard.user.index', 'label' => 'Users'],
+                        ['route' => 'dashboard.agama.index', 'label' => 'Agama'],
+                        ['route' => 'dashboard.siswa.index', 'label' => 'Siswa'],
+                        ['route' => 'dashboard.kategori.index', 'label' => 'Kategori Transaksi'],
+                        ['route' => 'dashboard.transaksi.check', 'label' => 'Cari Transaksi'],
+                        ['route' => 'dashboard.transaksi.index', 'label' => 'Transaksi']
+                    ];
+                }
             @endphp
 
             @foreach ($links as $link)

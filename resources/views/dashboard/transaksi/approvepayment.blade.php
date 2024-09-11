@@ -8,13 +8,13 @@
     <form id="payment-form" method="POST" action="{{ route('dashboard.transaksi.check') }}">
         @csrf
         <div class="mb-6">
-            <label for="kode" class="block text-sm font-medium text-[#051951]">Payment Code</label>
+            <label for="kode" class="block text-sm font-medium text-[#051951]">Kode Transaksi</label>
             <input type="text" id="kode" name="kode" class="w-full border border-gray-300 shadow-sm px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f18e00] focus:border-transparent" required>
         </div>
 
         <div class="text-center mt-6">
             <button type="submit" class="w-full bg-[#f18e00] text-white font-semibold py-3 rounded-md hover:bg-[#d77900] transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-[#f18e00]">
-                Check Payments
+                Cari Transaksi
             </button>
         </div>
     </form>
