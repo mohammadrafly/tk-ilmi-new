@@ -28,5 +28,23 @@
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
     @vite('resources/js/app.js')
     @yield('script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function closeMessage(id) {
+                const messageElement = document.getElementById(id);
+                if (messageElement) {
+                    messageElement.style.opacity = '0';
+                    setTimeout(() => {
+                        messageElement.remove();
+                    }, 300);
+                }
+            }
+
+            setTimeout(() => {
+                closeMessage('error-message');
+                closeMessage('success-message');
+            }, 3000);
+        });
+    </script>
 </body>
 </html>

@@ -51,4 +51,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaksi::class, 'user_id');
     }
+
+    public function siswa()
+    {
+        return $this->hasOne(Siswa::class, 'user_id');
+    }
+
+    public function agama()
+    {
+        return $this->hasOneThrough(Siswa::class, Agama::class, 'id', 'agama_id', 'agama_id', 'id');
+    }
 }

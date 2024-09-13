@@ -14,7 +14,7 @@ class RoleMiddleware
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @param  string  ...$roles
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Symfony\  omponent\HttpFoundation\Response
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {

@@ -14,13 +14,14 @@ return new class extends Migration
         Schema::create('siswa', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->text('alamat');
-            $table->text('tempat_lahir');
-            $table->string('tanggal_lahir');
-            $table->integer('agama_id');
+            $table->text('alamat')->nullable();
+            $table->text('tempat_lahir')->nullable();
+            $table->string('tanggal_lahir')->nullable();
+            $table->integer('agama_id')->nullable();
             $table->string('foto_akte_kelahiran')->nullable();
-            $table->string('nama_orang_tua');
-            $table->string('alamat_orang_tua');
+            $table->string('nama_orang_tua')->nullable();
+            $table->string('alamat_orang_tua')->nullable();
+            $table->enum('status', ['active', 'inactive'])->nullable();
             $table->timestamps();
         });
     }

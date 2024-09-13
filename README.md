@@ -63,6 +63,10 @@ Jika ada seeders yang perlu dijalankan, gunakan perintah ini untuk mengisi data 
 
 **Menjalankan Server Pengembangan**
 
+Jalankan server frontend:
+
+    npm run dev
+
 Jalankan server pengembangan Laravel:
 
     php artisan serve

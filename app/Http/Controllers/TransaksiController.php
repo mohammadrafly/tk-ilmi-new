@@ -17,11 +17,23 @@ use Midtrans\Snap;
 
 class TransaksiController extends Controller
 {
+    public function paymentPendaftaran($kode)
+    {
+        return view('dashboard.pendaftaran.payment', [
+            'title' => 'Bayar Pendaftaran',
+            'transaksi' => Transaksi::where('kode', $kode)->first(),
+            'listTransaksi' => ListTransaksi::where('kode', $kode)->get(),
+            'totalHarga' => ListTransaksi::where('kode', $kode)->sum('harga'),
+        ]);
+    }
+
     public function index()
     {
         return view('dashboard.transaksi.index', [
             'title' => 'Data Transaksi',
-            'data' => Transaksi::with('user')->get()
+            'data' => Auth::user()->role !== 'admin'
+                ? Transaksi::with('user')->where('user_id', Auth::user()->id)->get()
+                : Transaksi::with('user')->get()
         ]);
     }
 
@@ -29,7 +41,7 @@ class TransaksiController extends Controller
     {
         if ($request->isMethod('GET')) {
             return view('dashboard.transaksi.create', [
-                'title' => 'Create Transaksi',
+                'title' => 'Menu Pembayaran',
                 'users' => User::all(),
                 'kategori' => KategoriTransaksi::all(),
             ]);
@@ -54,6 +66,7 @@ class TransaksiController extends Controller
 
             foreach ($kategoriIds as $kategoriId) {
                 $kategori = KategoriTransaksi::find($kategoriId);
+                $namaKategori = $kategori->nama;
 
                 if ($kategori) {
                     $startOfMonth = Carbon::now()->startOfMonth();
@@ -62,15 +75,20 @@ class TransaksiController extends Controller
 
                     $intervalEnd = $startOfMonth->copy()->addDays($interval);
 
-                    $existingTransaction = ListTransaksi::where('kategori_id', $kategoriId)
+                    $existingTransaction = ListTransaksi::with('transaksi')->where('kategori_id', $kategoriId)
                         ->whereBetween('created_at', [$startOfMonth, $intervalEnd])
                         ->whereHas('transaksi', function ($query) {
                             $query->where('user_id', Auth::user()->id);
                         })
-                        ->exists();
+                        ->first();
 
-                    if ($existingTransaction) {
-                        return redirect()->back()->withErrors(['kategori_ids' => 'Transaction for this category already exists within the interval from the start of the month.']);
+                    if ($existingTransaction != null) {
+                        if ($existingTransaction->transaksi->status !== '2') {
+                            return redirect()->back()->withErrors(['kategori_ids' => 'Pembayaran untuk kategori ' . $namaKategori . ' belum lunas. Silakan lunasi tagihan sebelumnya terlebih dahulu.']);
+                        }
+
+                        $nextPaymentDate = $intervalEnd->format('d F Y');
+                        return redirect()->back()->withErrors(['kategori_ids' => 'Pembayaran untuk kategori ' . $namaKategori . ' telah diproses sebelumnya. Silakan lakukan pembayaran berikutnya pada ' . $nextPaymentDate . '.']);
                     }
 
                     ListTransaksi::create([
@@ -109,11 +127,11 @@ class TransaksiController extends Controller
             }
 
             return back()->with([
-                'success' => 'Transaksi created successfully.',
+                'success' => 'Pemabayaran berhasil dibuat.',
                 'redirect' => route('dashboard.transaksi.index')
             ]);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Failed to create transaksi. ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Failed to buat transaksi. ' . $e->getMessage()]);
         }
     }
 

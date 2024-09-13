@@ -5,12 +5,6 @@
 <div class="container mx-auto px-4 py-6">
     <h1 class="text-3xl font-bold text-[#051951] mb-6">{{ $title }}</h1>
 
-    <div class="mb-6">
-        <a href="{{ route('dashboard.transaksi.create') }}" class="bg-[#f18e00] text-white px-6 py-3 rounded-md hover:bg-[#d77900] transition duration-300 ease-in-out">
-            Add New Transaksi
-        </a>
-    </div>
-
     <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
         <table class="w-full min-w-full divide-y divide-gray-200">
             <thead class="bg-[#051951] text-white">
@@ -41,11 +35,13 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <a href="{{ route('dashboard.transaksi.show', $transaksi->kode) }}" class="text-[#f18e00] hover:text-[#d77900] transition duration-300 ease-in-out">View</a>
+                            @if (Auth::user()->role === 'admin')
                             <form action="{{ route('dashboard.transaksi.delete', $transaksi->id) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="button" class="text-red-600 hover:text-red-800 ml-4 transition duration-300 ease-in-out" onclick="confirmDelete(event, this.form)">Delete</button>
                             </form>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
