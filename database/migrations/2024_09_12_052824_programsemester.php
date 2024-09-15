@@ -23,6 +23,13 @@ return new class extends Migration
             $table->string('minggu4');
             $table->timestamps();
         });
+
+        Schema::create('tahunajaran', function (Blueprint $table) {
+            $table->id();
+            $table->int('tahunawal');
+            $table->int('tahunakhir');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -31,5 +38,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('programsemester');
+        Schema::dropIfExists('tahunajaran');
     }
 };

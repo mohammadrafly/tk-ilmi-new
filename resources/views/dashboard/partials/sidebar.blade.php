@@ -1,4 +1,4 @@
-<div class="w-fit h-full bg-[#051951] text-white flex flex-col">
+<div class="w-[300px] h-full bg-[#051951] text-white flex flex-col">
     <div class="flex items-center justify-center py-6 bg-[#051951] border-b border-[#f18e00]">
         <h1 class="text-3xl font-bold">TK ILMI</h1>
     </div>
@@ -32,7 +32,7 @@
                     $links = [
                         ['route' => 'dashboard.index', 'label' => 'Home', 'icon' => 'fas fa-home'],
                         ['route' => 'dashboard.user.index', 'label' => 'Data Users', 'icon' => 'fas fa-users'],
-                        ['route' => 'dashboard.agama.index', 'label' => 'Data Agama', 'icon' => 'fas fa-religious'],
+                        ['route' => 'dashboard.agama.index', 'label' => 'Data Agama', 'icon' => 'fas fa-user-group'],
                         ['route' => 'dashboard.siswa.index', 'label' => 'Data Siswa', 'icon' => 'fas fa-user-graduate'],
                         ['route' => 'dashboard.guru.index', 'label' => 'Data Pengajar', 'icon' => 'fas fa-chalkboard-teacher'],
                         ['route' => 'dashboard.tahunajaran.index', 'label' => 'Tahun Ajaran', 'icon' => 'fas fa-calendar-alt'],

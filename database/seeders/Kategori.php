@@ -13,21 +13,9 @@ class Kategori extends Seeder
     public function run(): void
     {
         KategoriTransaksi::create([
-            'nama' => 'SPP',
+            'nama' => 'Pendaftaran',
             'harga' => '100000',
-            'interval' => '30',
-        ]);
-
-        KategoriTransaksi::create([
-            'nama' => 'Seragam',
-            'harga' => '150000',
-            'interval' => '365',
-        ]);
-
-        KategoriTransaksi::create([
-            'nama' => 'Uang Gedung',
-            'harga' => '200000',
-            'interval' => '365',
+            'interval' => '999',
         ]);
     }
 }

@@ -82,7 +82,7 @@
                                                 @php
                                                     $previousPaymentsCompleted = $loop->index === 0 || $listCicilTransaksi[$loop->index - 1]->status === 'lunas';
                                                 @endphp
-                                                <button id="payButtonCicil-{{ $item->id }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-semibold payInstallmentButton {{ $previousPaymentsCompleted ? '' : 'opacity-50 cursor-not-allowed' }}" data-id="{{ $item->id }}" {{ $previousPaymentsCompleted ? '' : 'disabled' }}>
+                                                <button id="payButtonCicil" data-id="{{ $item->id }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-semibold payInstallmentButton {{ $previousPaymentsCompleted ? '' : 'opacity-50 cursor-not-allowed' }}" data-id="{{ $item->id }}" {{ $previousPaymentsCompleted ? '' : 'disabled' }}>
                                                     Pay Now
                                                 </button>
                                             @endif

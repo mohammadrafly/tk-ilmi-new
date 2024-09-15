@@ -15,12 +15,25 @@ class Transaksi extends Model
 
     public function listTransaksi()
     {
-        return $this->hasMany(ListTransaksi::class, 'kode');
+        return $this->hasMany(ListTransaksi::class, 'kode', 'kode');
     }
+
+    public function kategoriTransaksi()
+    {
+        return $this->hasManyThrough(
+            KategoriTransaksi::class,  // The final related model
+            ListTransaksi::class,      // The intermediate model
+            'kode',                    // Foreign key on ListTransaksi (relating to Transaksi)
+            'id',                      // Foreign key on KategoriTransaksi (relating to ListTransaksi)
+            'kode',                    // Local key on Transaksi
+            'kategori_id'              // Local key on ListTransaksi (relating to KategoriTransaksi)
+        );
+    }
+
 
     public function listCicilTransaksi()
     {
-        return $this->hasMany(ListCicilTransaksi::class, 'kode');
+        return $this->hasMany(ListCicilTransaksi::class, 'kode', 'kode');
     }
 
     public function user()

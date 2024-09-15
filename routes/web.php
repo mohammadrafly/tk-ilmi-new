@@ -47,6 +47,8 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
     Route::get('/siswa/{id}/view-certificate', [SiswaController::class, 'viewCertificate'])->name('dashboard.siswa.view_certificate');
     Route::match(['PUT', 'GET'], 'pendaftaran', [SiswaController::class, 'pendaftaranSiswa'])->name('dashboard.pendaftaran.index');
     route::get('/pendaftaran/{kode}/payment/', [TransaksiController::class, 'paymentPendaftaran'])->name('dashboard.pendaftaran.payment');
+    route::get('/pendaftaran/payment/option', [SiswaController::class, 'paymentOptions'])->name('dashboard.pendaftaran.paymentOptions');
+    route::post('/pendaftaran/payment/option/process', [SiswaController::class, 'processPaymentOptions'])->name('dashboard.pendaftaran.processPaymentOptions');
 
     Route::middleware('roleMiddleware:admin')->group(function() {
         Route::prefix('user')->controller(UserController::class)->group(function() {

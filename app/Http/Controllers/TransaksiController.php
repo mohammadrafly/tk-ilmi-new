@@ -9,6 +9,7 @@ use App\Models\Transaksi;
 use App\Models\User;
 use App\Models\ListTransaksi;
 use App\Models\ListCicilTransaksi;
+use App\Models\Siswa;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,14 @@ class TransaksiController extends Controller
 {
     public function paymentPendaftaran($kode)
     {
+        $checkIfExist = Transaksi::where('kode', $kode)->first();
+        if (!$checkIfExist) {
+            return redirect()->route('dashboard.index')->with([
+                'success' => 'Transaksi not found.',
+                'redirect' => route('dashboard.index')
+            ]);;
+        }
+
         return view('dashboard.pendaftaran.payment', [
             'title' => 'Bayar Pendaftaran',
             'transaksi' => Transaksi::where('kode', $kode)->first(),
@@ -43,7 +52,7 @@ class TransaksiController extends Controller
             return view('dashboard.transaksi.create', [
                 'title' => 'Menu Pembayaran',
                 'users' => User::all(),
-                'kategori' => KategoriTransaksi::all(),
+                'kategori' => KategoriTransaksi::where('nama', '!=', 'Pendaftaran')->get(),
             ]);
         }
 
@@ -226,6 +235,12 @@ class TransaksiController extends Controller
         $transaksi->status = '2';
         $transaksi->save();
 
+        if ($transaksi->kategoriTransaksi[0]->nama === 'Pendaftaran') {
+            $siswa = Siswa::where('user_id', $transaksi->user_id)->first();
+            $siswa->status = 'active';
+            $siswa->save();
+        }
+
         return redirect()->route('dashboard.transaksi.check.detail', $transaksi->kode)
                          ->with('success', 'Full cash payment approved successfully.');
     }
@@ -268,6 +283,8 @@ class TransaksiController extends Controller
         Config::$is3ds = true;
 
         $itemDetails = [];
+        $isPendaftaran = false;
+
         foreach ($listItem as $item) {
             $itemDetails[] = [
                 'id' => $item->kategori->id,
@@ -275,6 +292,16 @@ class TransaksiController extends Controller
                 'quantity' => 1,
                 'name' => $item->kategori->nama,
             ];
+
+            if ($item->kategori->nama === 'Pendaftaran') {
+                $isPendaftaran = true;
+            }
+        }
+
+        if ($isPendaftaran) {
+            $finish = url('/payment/pendaftaran/' . $data->kode . '/callback/success');
+        } else {
+            $finish = url('/payment/penuh/' . $data->kode . '/callback/success');
         }
 
         $params = [
@@ -291,19 +318,23 @@ class TransaksiController extends Controller
             ],
             'item_details' => $itemDetails,
             'callbacks' => [
-                'finish' => 'http://localhost:8080/api/payment/penuh/' . $data->kode . '/callback/success/',
+                'finish' => $finish,
             ],
         ];
 
         return response()->json(Snap::getSnapToken($params));
     }
 
-    public function callbackSuccessPaymentOnlinePenuh($kode)
+    public function callbackSuccessPaymentOnlinePendaftaran($kode)
     {
         $data = Transaksi::where('kode', $kode)->first();
         $data->update(['status' => '2']);
 
-        return redirect()->route('dashboard.transaksi.check.detail', $kode)->with('success', 'Pembayaran Berhasil!');
+        $siswa = Siswa::where('user_id', $data->user_id)->first();
+        $siswa->status = 'active';
+        $siswa->save();
+
+        return redirect()->route('dashboard.index')->with('success', 'Pembayaran Berhasil!');
     }
 
     public function paymentOnlineCicil($id)

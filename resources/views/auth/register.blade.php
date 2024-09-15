@@ -35,6 +35,14 @@
 
         <div class="mb-6">
             <label for="password" class="block text-sm font-medium text-[#051951]">Password</label>
+            <div class="mb-6 text-xs text-gray-600">
+                <p class="font-semibold">Password Requirements:</p>
+                <ul class="list-disc ml-5 mt-2">
+                    <li>At least 8 characters long</li>
+                    <li>Includes at least one uppercase letter (A-Z)</li>
+                    <li>Includes at least one number (0-9)</li>
+                </ul>
+            </div>
             <div class="mt-2">
                 <input type="password" name="password" class="w-full border {{ $errors->has('password') ? 'border-red-500' : 'border-gray-300' }} shadow-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#f18e00] focus:border-transparent"
                        id="password" placeholder="Enter Password" required>

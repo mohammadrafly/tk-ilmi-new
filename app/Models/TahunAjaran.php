@@ -15,6 +15,6 @@ class TahunAjaran extends Model
 
     public function programSemesters()
     {
-        return $this->hasMany(ProgramSemester::class, 'tahun_ajaran');
+        return $this->hasMany(ProgramSemester::class, 'tahun_ajaran', 'tahun_ajaran');
     }
 }

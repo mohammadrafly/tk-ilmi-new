@@ -11,9 +11,17 @@ class ProgramSemesterController extends Controller
 {
     public function show()
     {
-        return view('dashboard.programsemester.show', [
+        $currentYear = now()->year;
+
+        $programSemesters = ProgramSemester::with('tahunajaran')
+            ->whereHas('tahunajaran', function($query) use ($currentYear) {
+                $query->where('tahunakhir', $currentYear);
+            })
+            ->get();
+
+        return view('dashboard.program_semester.show', [
             'title' => 'Daftar Program Semester',
-            'data' => ProgramSemester::all(),
+            'data' => $programSemesters,
         ]);
     }
 

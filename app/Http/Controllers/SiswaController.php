@@ -22,6 +22,21 @@ class SiswaController extends Controller
         $siswa = Siswa::where('user_id', $id)->first();
 
         if ($request->isMethod('GET')) {
+            $pendaftaran = KategoriTransaksi::where('nama', 'Pendaftaran')->first();
+
+            if ($pendaftaran) {
+                $existingTransaksi = Transaksi::with('listTransaksi', 'kategoriTransaksi')->where('user_id', $id)
+                    ->where('status', '0')
+                    ->first();
+
+                if ($existingTransaksi->kategoriTransaksi[0]->nama === 'Pendaftaran') {
+                    return redirect()->route('dashboard.pendaftaran.payment', $existingTransaksi->kode)->with([
+                        'info' => 'You already have a pending payment. Please complete the payment.',
+                    ]);
+                }
+            }
+
+
             return view('dashboard.pendaftaran.index', [
                 'title' => 'Lengkapi Pendaftaran',
                 'agamas' => Agama::all(),
@@ -34,12 +49,11 @@ class SiswaController extends Controller
             'tempat_lahir' => 'required|string|max:255',
             'tanggal_lahir' => 'required|date',
             'agama_id' => 'required|exists:agama,id',
-            'foto_akte_kelahiran' => 'required|file|mimes:pdf|max:2048',
+            'foto_akte_kelahiran' => 'nullable|file|mimes:pdf|max:2048',
             'nama_orang_tua' => 'required|string|max:255',
             'alamat_orang_tua' => 'required|string|max:255',
         ]);
 
-        $siswa = Siswa::where('user_id', $id)->firstOrFail();
         $siswa->alamat = $request->input('alamat');
         $siswa->tempat_lahir = $request->input('tempat_lahir');
         $siswa->tanggal_lahir = $request->input('tanggal_lahir');
@@ -55,11 +69,36 @@ class SiswaController extends Controller
 
         $siswa->save();
 
+        return redirect()->route('dashboard.pendaftaran.paymentOptions')->with([
+            'success' => 'Data berhasil dilengkapi. Please choose payment options.',
+        ]);
+    }
+
+    public function paymentOptions()
+    {
+        $metodeOptions = ['cash', 'online'];
+        $jenisOptions = ['penuh'];
+
+        return view('dashboard.pendaftaran.payment_options', [
+            'title' => 'Choose Payment Options',
+            'metodeOptions' => $metodeOptions,
+            'jenisOptions' => $jenisOptions,
+        ]);
+    }
+
+    public function processPaymentOptions(Request $request)
+    {
+        $request->validate([
+            'metode' => 'required|string|in:cash,online',
+            'jenis' => 'required|string|in:penuh,cicil',
+        ]);
+
+        $id = Auth::user()->id;
         $pendaftaran = KategoriTransaksi::where('nama', 'Pendaftaran')->first();
 
-        $kode = Str::uuid()->toString();
-
         if ($pendaftaran) {
+            $kode = Str::uuid()->toString();
+
             ListTransaksi::create([
                 'kode' => $kode,
                 'kategori_id' => $pendaftaran->id,
@@ -68,10 +107,10 @@ class SiswaController extends Controller
 
             $transaksi = Transaksi::create([
                 'kode' => $kode,
-                'user_id' => Auth::user()->id,
+                'user_id' => $id,
                 'keterangan' => '-',
-                'metode' => 'cash',
-                'jenis' => 'penuh',
+                'metode' => $request->input('metode'),
+                'jenis' => $request->input('jenis'),
                 'status' => '0',
             ]);
         } else {
@@ -81,7 +120,7 @@ class SiswaController extends Controller
         }
 
         return redirect()->route('dashboard.pendaftaran.payment', $transaksi->kode)->with([
-            'success' => 'Data berhasil dilengkapi. Please proceed to payment.',
+            'success' => 'Payment options selected. Please proceed to payment.',
         ]);
     }
 
