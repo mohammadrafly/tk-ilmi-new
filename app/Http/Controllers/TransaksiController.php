@@ -395,8 +395,8 @@ class TransaksiController extends Controller
                                           ->where('status', '!=', 'lunas')
                                           ->count() === 0;
 
-        if ($allCicilLunas) {
-            $transaksi->status = '2';
+        if ($allCicilLunas) { 
+            $transaksi->status = '2'; 
             $transaksi->save();
         }
 
