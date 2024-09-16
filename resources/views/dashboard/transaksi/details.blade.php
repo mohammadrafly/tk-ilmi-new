@@ -153,7 +153,7 @@
 
         function handlePayment() {
             $.ajax({
-                url: '{{ url('api/payment/penuh/'. $transaksi->kode) }}',
+                url: '{{ route('api.payment.penuh', $transaksi->kode) }}',
                 method: 'POST',
                 success: function(response) {
                     window.snap.pay(response, {
@@ -180,7 +180,7 @@
 
         function updatePaymentStatus(result) {
             $.ajax({
-                url: '{{ url('/api/payment/penuh/'. $transaksi->kode .'/callback/success') }}',
+                url: '{{ route('api.callback.online.penuh', $transaksi->kode) }}',
                 method: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'

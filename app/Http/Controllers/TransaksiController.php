@@ -284,6 +284,7 @@ class TransaksiController extends Controller
 
         $itemDetails = [];
         $isPendaftaran = false;
+        $finish = null;
 
         foreach ($listItem as $item) {
             $itemDetails[] = [
@@ -298,10 +299,11 @@ class TransaksiController extends Controller
             }
         }
 
+
         if ($isPendaftaran) {
-            $finish = url('/payment/pendaftaran/' . $data->kode . '/callback/success');
+            $finish = route('api.callback.pendaftaran', $data->kode);
         } else {
-            $finish = url('/payment/penuh/' . $data->kode . '/callback/success');
+            $finish = route('api.callback.online.penuh', $data->kode);
         }
 
         $params = [
@@ -325,14 +327,21 @@ class TransaksiController extends Controller
         return response()->json(Snap::getSnapToken($params));
     }
 
+    public function callbackSuccessPaymentOnlinePenuh($kode)
+    {
+        $data = Transaksi::where('kode', $kode)->first();
+        $data->update(['status' => '2']);
+
+        return redirect()->route('dashboard.index')->with('success', 'Pembayaran Berhasil!');
+    }
+
     public function callbackSuccessPaymentOnlinePendaftaran($kode)
     {
         $data = Transaksi::where('kode', $kode)->first();
         $data->update(['status' => '2']);
 
         $siswa = Siswa::where('user_id', $data->user_id)->first();
-        $siswa->status = 'active';
-        $siswa->save();
+        $siswa->update(['status' => 'active']);
 
         return redirect()->route('dashboard.index')->with('success', 'Pembayaran Berhasil!');
     }
@@ -372,7 +381,7 @@ class TransaksiController extends Controller
                 ],
             ],
             'callbacks' => [
-                'finish' => 'http://localhost:8080/api/payment/cicil/' . $listCicilTransaksi->id . '/callback/success/',
+                'finish' => route('api.callback.online.penuh', $data->kode),
             ],
         ];
 

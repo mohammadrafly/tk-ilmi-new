@@ -22,20 +22,15 @@ class SiswaController extends Controller
         $siswa = Siswa::where('user_id', $id)->first();
 
         if ($request->isMethod('GET')) {
-            $pendaftaran = KategoriTransaksi::where('nama', 'Pendaftaran')->first();
-
-            if ($pendaftaran) {
-                $existingTransaksi = Transaksi::with('listTransaksi', 'kategoriTransaksi')->where('user_id', $id)
+            $existingTransaksi = Transaksi::with('listTransaksi', 'kategoriTransaksi')->where('user_id', $id)
                     ->where('status', '0')
                     ->first();
 
-                if ($existingTransaksi->kategoriTransaksi[0]->nama === 'Pendaftaran') {
-                    return redirect()->route('dashboard.pendaftaran.payment', $existingTransaksi->kode)->with([
-                        'info' => 'You already have a pending payment. Please complete the payment.',
-                    ]);
-                }
+            if ($existingTransaksi) {
+                return redirect()->route('dashboard.pendaftaran.payment', $existingTransaksi->kode)->with([
+                    'error' => 'You already have a pending payment. Please complete the payment.',
+                ]);
             }
-
 
             return view('dashboard.pendaftaran.index', [
                 'title' => 'Lengkapi Pendaftaran',
