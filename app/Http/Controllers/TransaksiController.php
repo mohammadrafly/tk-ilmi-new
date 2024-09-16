@@ -325,6 +325,14 @@ class TransaksiController extends Controller
         return response()->json(Snap::getSnapToken($params));
     }
 
+    public function callbackSuccessPaymentOnlinePenuh($kode)
+    {
+        $data = Transaksi::where('kode', $kode)->first();
+        $data->update(['status' => '2']);
+
+        return redirect()->route('dashboard.index')->with('success', 'Pembayaran Berhasil!');
+    }
+
     public function callbackSuccessPaymentOnlinePendaftaran($kode)
     {
         $data = Transaksi::where('kode', $kode)->first();
