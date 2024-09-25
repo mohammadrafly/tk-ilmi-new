@@ -45,9 +45,15 @@ class TransaksiController extends Controller
             'to_date' => 'required|date|after_or_equal:from_date',
         ]);
 
+        $user = Auth::user();
+        $isAdmin = $user->role === 'admin';
+
         $fileName = 'transaksi_' . $request->from_date . '_to_' . $request->to_date . '.xlsx';
 
-        return Excel::download(new TransaksiExport($request->from_date, $request->to_date), $fileName);
+        return Excel::download(
+            new TransaksiExport($request->from_date, $request->to_date, $user->id, $isAdmin),
+            $fileName
+        );
     }
 
     public function index()

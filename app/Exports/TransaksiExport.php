@@ -11,18 +11,27 @@ class TransaksiExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $fromDate;
     protected $toDate;
+    protected $userId;
+    protected $isAdmin;
 
-    public function __construct($fromDate, $toDate)
+    public function __construct($fromDate, $toDate, $userId, $isAdmin)
     {
         $this->fromDate = $fromDate;
         $this->toDate = $toDate;
+        $this->userId = $userId;
+        $this->isAdmin = $isAdmin;
     }
 
     public function collection()
     {
-        return Transaksi::with('user')
-            ->whereBetween('created_at', [$this->fromDate, $this->toDate])
-            ->get();
+        $query = Transaksi::with('user')
+            ->whereBetween('created_at', [$this->fromDate, $this->toDate]);
+
+        if (!$this->isAdmin) {
+            $query->where('user_id', $this->userId);
+        }
+
+        return $query->get();
     }
 
     public function headings(): array
