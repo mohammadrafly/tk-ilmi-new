@@ -115,6 +115,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         });
         Route::match(['PUT', 'GET'], '/{id}/show', 'show')->name('dashboard.transaksi.show');
         Route::middleware('roleMiddleware:admin')->group(function() {
+            Route::get('/download', 'download')->name('dashboard.transaksi.download');
             Route::delete('/{id}/delete', 'delete')->name('dashboard.transaksi.delete');
             Route::match(['POST', 'GET'], '/check/payment', 'checkPayment')->name('dashboard.transaksi.check');
             Route::get('/check/payment/{kode}/detail', 'checkPaymentDetail')->name('dashboard.transaksi.check.detail');

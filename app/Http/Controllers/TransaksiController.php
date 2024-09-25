@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransaksiExport;
 use App\Models\KategoriTransaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransaksiController extends Controller
 {
@@ -34,6 +36,18 @@ class TransaksiController extends Controller
             'listTransaksi' => ListTransaksi::where('kode', $kode)->get(),
             'totalHarga' => ListTransaksi::where('kode', $kode)->sum('harga'),
         ]);
+    }
+
+    public function download(Request $request)
+    {
+        $request->validate([
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date',
+        ]);
+
+        $fileName = 'transaksi_' . $request->from_date . '_to_' . $request->to_date . '.xlsx';
+
+        return Excel::download(new TransaksiExport($request->from_date, $request->to_date), $fileName);
     }
 
     public function index()
