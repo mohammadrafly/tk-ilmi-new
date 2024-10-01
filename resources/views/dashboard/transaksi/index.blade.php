@@ -5,8 +5,20 @@
 <div class="container mx-auto px-4 py-6">
     <h1 class="text-3xl font-bold text-[#051951] mb-6">{{ $title }}</h1>
 
-    <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
-        <table class="w-full min-w-full divide-y divide-gray-200">
+    <div class="mb-6">
+        <form action="{{ route('dashboard.transaksi.download') }}" method="GET" class="flex items-center">
+            <label for="from_date" class="mr-2">Start Date:</label>
+            <input type="date" name="from_date" id="from_date" class="border border-gray-300 px-2 py-1 rounded mr-4">
+
+            <label for="to_date" class="mr-2">End Date:</label>
+            <input type="date" name="to_date" id="to_date" class="border border-gray-300 px-2 py-1 rounded mr-4">
+
+            <button type="submit" class="bg-[#051951] text-white px-4 py-2 rounded hover:bg-[#034ea2] transition duration-300">Download XLSX</button>
+        </form>
+    </div>
+
+    <div class="overflow-x-auto bg-white shadow-lg rounded-lg p-2">
+        <table id="transaksiTable" class="w-full min-w-full divide-y divide-gray-200">
             <thead class="bg-[#051951] text-white">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Kode</th>
@@ -50,6 +62,10 @@
     </div>
 </div>
 
+@endsection
+
+@section('script')
+
 <script>
     function confirmDelete(event, form) {
         event.preventDefault();
@@ -57,6 +73,16 @@
             form.submit();
         }
     }
+
+    $(document).ready(function() {
+        $('#transaksiTable').DataTable({
+            "pageLength": 10,
+            "order": [[0, 'desc']],
+            "language": {
+                "search": "Search transactions:"
+            }
+        });
+    });
 </script>
 
 @endsection

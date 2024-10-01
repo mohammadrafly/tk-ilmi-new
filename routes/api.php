@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\TransaksiController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(TransaksiController::class)->group(function() {

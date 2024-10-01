@@ -11,7 +11,7 @@ class Transaksi extends Model
 
     protected $table = 'transaksi';
 
-    protected $guarded = [''];
+    protected $guarded = [];
 
     public function listTransaksi()
     {
@@ -21,12 +21,12 @@ class Transaksi extends Model
     public function kategoriTransaksi()
     {
         return $this->hasManyThrough(
-            KategoriTransaksi::class,  // The final related model
-            ListTransaksi::class,      // The intermediate model
-            'kode',                    // Foreign key on ListTransaksi (relating to Transaksi)
-            'id',                      // Foreign key on KategoriTransaksi (relating to ListTransaksi)
-            'kode',                    // Local key on Transaksi
-            'kategori_id'              // Local key on ListTransaksi (relating to KategoriTransaksi)
+            KategoriTransaksi::class,
+            ListTransaksi::class,
+            'kode',
+            'id',
+            'kode',
+            'kategori_id'
         );
     }
 
