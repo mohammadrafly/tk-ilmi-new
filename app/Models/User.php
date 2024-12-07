@@ -20,7 +20,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'role_id',
         'jk'
     ];
 
@@ -60,5 +60,10 @@ class User extends Authenticatable
     public function agama()
     {
         return $this->hasOneThrough(Siswa::class, Agama::class, 'id', 'agama_id', 'agama_id', 'id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

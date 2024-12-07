@@ -14,7 +14,7 @@ class UserController extends Controller
     {
         return view('dashboard.users.index', [
             'title' => 'Data User',
-            'data' => User::all()
+            'data' => User::with('role')->get()
         ]);
     }
 

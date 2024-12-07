@@ -1,21 +1,21 @@
-<div class="w-[300px] h-full bg-[#051951] text-white flex flex-col">
+<div class="w-[300px] max-h-screen bg-[#051951] text-white flex flex-col">
     <div class="flex items-center justify-center py-6 bg-[#051951] border-b border-[#f18e00]">
         <h1 class="text-3xl font-bold">TK ILMI</h1>
     </div>
 
-    <nav class="flex-1">
+    <nav class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#f18e00] scrollbar-track-[#051951]">
         <ul class="space-y-2 p-4">
             @php
                 $links = [];
 
                 use App\Models\Siswa;
+                use App\Models\Role;
 
                 $userId = Auth::user()->id;
-
                 $siswa = Siswa::where('user_id', $userId)->first();
 
                 if (Auth::user()->role === 'siswa') {
-                    if ($siswa->status === 'active') {
+                    if ($siswa && $siswa->status === 'active') {
                         $links = [
                             ['route' => 'dashboard.transaksi.create', 'label' => 'Menu Pembayaran', 'icon' => 'fas fa-credit-card'],
                             ['route' => 'dashboard.transaksi.index', 'label' => 'Riwayat Pembayaran', 'icon' => 'fas fa-history'],
@@ -29,19 +29,61 @@
                         ];
                     }
                 } else {
-                    $links = [
+                    $role = Role::with('permissions')->find(Auth::user()->role_id);
+
+                    $links = array_merge($links, [
                         ['route' => 'dashboard.index', 'label' => 'Home', 'icon' => 'fas fa-home'],
-                        ['route' => 'dashboard.user.index', 'label' => 'Data Users', 'icon' => 'fas fa-users'],
-                        ['route' => 'dashboard.agama.index', 'label' => 'Data Agama', 'icon' => 'fas fa-user-group'],
-                        ['route' => 'dashboard.siswa.index', 'label' => 'Data Siswa', 'icon' => 'fas fa-user-graduate'],
-                        ['route' => 'dashboard.guru.index', 'label' => 'Data Pengajar', 'icon' => 'fas fa-chalkboard-teacher'],
-                        ['route' => 'dashboard.tahunajaran.index', 'label' => 'Tahun Ajaran', 'icon' => 'fas fa-calendar-alt'],
-                        ['route' => 'dashboard.programsemester.index', 'label' => 'Data Program Semester', 'icon' => 'fas fa-calendar'],
-                        ['route' => 'dashboard.gallerykegiatan.index', 'label' => 'Data Gallery Kegiatan', 'icon' => 'fas fa-images'],
-                        ['route' => 'dashboard.kategori.index', 'label' => 'Data Kategori Transaksi', 'icon' => 'fas fa-tags'],
-                        ['route' => 'dashboard.transaksi.check', 'label' => 'Cari Transaksi', 'icon' => 'fas fa-search'],
-                        ['route' => 'dashboard.transaksi.index', 'label' => 'Data Transaksi', 'icon' => 'fas fa-credit-card']
-                    ];
+                    ]);
+
+                    if ($role) {
+                        if ($role->hasPermission('read', 'users')) {
+                            $links[] = ['route' => 'dashboard.user.index', 'label' => 'Data Users', 'icon' => 'fas fa-users'];
+                        }
+
+                        if ($role->hasPermission('read', 'roles')) {
+                            $links[] = ['route' => 'dashboard.roles.index', 'label' => 'Data Role', 'icon' => 'fas fa-shield'];
+                        }
+
+                        if ($role->hasPermission('read', 'permissions')) {
+                            $links[] = ['route' => 'dashboard.permission.index', 'label' => 'Data Permission', 'icon' => 'fas fa-shield'];
+                        }
+
+                        if ($role->hasPermission('read', 'agama')) {
+                            $links[] = ['route' => 'dashboard.agama.index', 'label' => 'Data Agama', 'icon' => 'fas fa-user-group'];
+                        }
+
+                        if ($role->hasPermission('read', 'siswa')) {
+                            $links[] = ['route' => 'dashboard.siswa.index', 'label' => 'Data Siswa', 'icon' => 'fas fa-user-graduate'];
+                        }
+
+                        if ($role->hasPermission('read', 'guru')) {
+                            $links[] = ['route' => 'dashboard.guru.index', 'label' => 'Data Pengajar', 'icon' => 'fas fa-chalkboard-teacher'];
+                        }
+
+                        if ($role->hasPermission('read', 'tahunajaran')) {
+                            $links[] = ['route' => 'dashboard.tahunajaran.index', 'label' => 'Tahun Ajaran', 'icon' => 'fas fa-calendar-alt'];
+                        }
+
+                        if ($role->hasPermission('read', 'programsemester')) {
+                            $links[] = ['route' => 'dashboard.programsemester.index', 'label' => 'Data Program Semester', 'icon' => 'fas fa-calendar'];
+                        }
+
+                        if ($role->hasPermission('read', 'gallerykegiatan')) {
+                            $links[] = ['route' => 'dashboard.gallerykegiatan.index', 'label' => 'Data Gallery Kegiatan', 'icon' => 'fas fa-images'];
+                        }
+
+                        if ($role->hasPermission('read', 'kategori')) {
+                            $links[] = ['route' => 'dashboard.kategori.index', 'label' => 'Data Kategori Transaksi', 'icon' => 'fas fa-tags'];
+                        }
+
+                        if ($role->hasPermission('read', 'transaksi')) {
+                            $links[] = ['route' => 'dashboard.transaksi.check', 'label' => 'Cari Transaksi', 'icon' => 'fas fa-search'];
+                        }
+
+                        if ($role->hasPermission('read', 'transaksi')) {
+                            $links[] = ['route' => 'dashboard.transaksi.index', 'label' => 'Data Transaksi', 'icon' => 'fas fa-credit-card'];
+                        }
+                    }
                 }
             @endphp
 
@@ -88,7 +130,7 @@
                  x-transition:leave-end="opacity-0"
                  class="w-full mt-2 bg-white text-[#051951] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none rounded-lg">
                 <ul class="space-y-1">
-                    @if (Auth::user()->role === 'admin' || $siswa->status === 'active')
+                    @if (Auth::user()->role_id === 1 || $siswa->status === 'active')
                     <li>
                         <a href="{{ route('dashboard.update.profile', Auth::user()->email) }}" class="block w-full px-4 py-2 text-sm text-left hover:bg-gray-200 rounded-lg">
                             <i class="fas fa-user-circle mr-2"></i>Profile
