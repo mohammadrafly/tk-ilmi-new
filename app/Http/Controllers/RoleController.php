@@ -50,19 +50,60 @@ class RoleController extends Controller
         }
     }
 
-    public function assignPermissionsToRole(Request $request, $roleId)
+    public function update(Request $request, $id = null)
     {
-        $role = Role::findOrFail($roleId);
+        if ($id) {
+            $role = Role::with('permissions')->findOrFail($id);
+        }
 
-        $request->validate([
-            'permissions' => 'required|array',
+        if ($request->isMethod('GET')) {
+            return view('dashboard.role.edit', [
+                'title' => 'Edit Role',
+                'role' => isset($role) ? $role : null,
+                'permissions' => Permission::all(),
+            ]);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|unique:roles,name,' . ($id ? $id : ''),
+            'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,slug',
         ]);
 
-        $permissions = Permission::whereIn('slug', $request->permissions)->get();
-        $role->permissions()->sync($permissions);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        return response()->json(['message' => 'Permissions assigned successfully', 'role' => $role->load('permissions')]);
+        try {
+            if ($id) {
+                $role = Role::findOrFail($id);
+                $role->name = $request->name;
+                $role->save();
+            } else {
+                $role = Role::create(['name' => $request->name]);
+            }
+
+            if ($request->has('permissions')) {
+                $permissions = Permission::whereIn('slug', $request->permissions)->get();
+                $role->permissions()->sync($permissions);
+            }
+
+            return redirect()->route('dashboard.roles.index')->with('success', $id ? 'Role updated successfully.' : 'Role created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to save data.']);
+        }
     }
 
+    public function destroy($id)
+    {
+        try {
+            $role = Role::findOrFail($id);
+            $role->permissions()->detach();
+            $role->delete();
+
+            return redirect()->route('dashboard.roles.index')->with('success', 'Role deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to delete role.']);
+        }
+    }
 }
