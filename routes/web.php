@@ -74,7 +74,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         $resource = 'users';
 
         Route::middleware(['permission:read,' . $resource])->get('/', 'index')->name('dashboard.user.index');
-        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'store')->name('dashboard.user.create');
+        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'create')->name('dashboard.user.create');
         Route::middleware(['permission:update,' . $resource])->match(['PUT', 'GET'], '/{id}/edit', 'update')->name('dashboard.user.edit');
         Route::middleware(['permission:delete,' . $resource])->delete('/{id}/delete', 'destroy')->name('dashboard.user.delete');
     });
@@ -83,7 +83,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         $resource = 'agama';
 
         Route::middleware(['permission:read,' . $resource])->get('/', 'index')->name('dashboard.agama.index');
-        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'store')->name('dashboard.agama.create');
+        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'create')->name('dashboard.agama.create');
         Route::middleware(['permission:update,' . $resource])->match(['PUT', 'GET'], '/{id}/edit', 'update')->name('dashboard.agama.edit');
         Route::middleware(['permission:delete,' . $resource])->delete('/{id}/delete', 'destroy')->name('dashboard.agama.delete');
     });
@@ -92,7 +92,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         $resource = 'tahunajaran';
 
         Route::middleware(['permission:read,' . $resource])->get('/', 'index')->name('dashboard.tahunajaran.index');
-        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'store')->name('dashboard.tahunajaran.create');
+        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'create')->name('dashboard.tahunajaran.create');
         Route::middleware(['permission:update,' . $resource])->match(['PUT', 'GET'], '/{id}/edit', 'update')->name('dashboard.tahunajaran.edit');
         Route::middleware(['permission:delete,' . $resource])->delete('/{id}/delete', 'destroy')->name('dashboard.tahunajaran.delete');
     });
@@ -101,7 +101,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         $resource = 'guru';
 
         Route::middleware(['permission:read,' . $resource])->get('/', 'index')->name('dashboard.guru.index');
-        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'store')->name('dashboard.guru.create');
+        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'create')->name('dashboard.guru.create');
         Route::middleware(['permission:update,' . $resource])->match(['PUT', 'GET'], '/{id}/edit', 'update')->name('dashboard.guru.edit');
         Route::middleware(['permission:delete,' . $resource])->delete('/{id}/delete', 'destroy')->name('dashboard.guru.delete');
     });
@@ -110,7 +110,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         $resource = 'programsemester';
 
         Route::middleware(['permission:read,' . $resource])->get('/', 'index')->name('dashboard.programsemester.index');
-        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'store')->name('dashboard.programsemester.create');
+        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'create')->name('dashboard.programsemester.create');
         Route::middleware(['permission:update,' . $resource])->match(['PUT', 'GET'], '/{id}/edit', 'update')->name('dashboard.programsemester.edit');
         Route::middleware(['permission:delete,' . $resource])->delete('/{id}/delete', 'destroy')->name('dashboard.programsemester.delete');
     });
@@ -119,7 +119,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         $resource = 'gallerykegiatan';
 
         Route::middleware(['permission:read,' . $resource])->get('/', 'index')->name('dashboard.gallerykegiatan.index');
-        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'store')->name('dashboard.gallerykegiatan.create');
+        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'create')->name('dashboard.gallerykegiatan.create');
         Route::middleware(['permission:update,' . $resource])->match(['PUT', 'GET'], '/{id}/edit', 'update')->name('dashboard.gallerykegiatan.edit');
         Route::middleware(['permission:delete,' . $resource])->delete('/{id}/delete', 'destroy')->name('dashboard.gallerykegiatan.delete');
     });
@@ -128,7 +128,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         $resource = 'siswa';
 
         Route::middleware(['permission:read,' . $resource])->get('/', 'index')->name('dashboard.siswa.index');
-        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'store')->name('dashboard.siswa.create');
+        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'create')->name('dashboard.siswa.create');
         Route::middleware(['permission:update,' . $resource])->match(['PUT', 'GET'], '/{id}/edit', 'update')->name('dashboard.siswa.edit');
         Route::middleware(['permission:delete,' . $resource])->delete('/{id}/delete', 'destroy')->name('dashboard.siswa.delete');
     });

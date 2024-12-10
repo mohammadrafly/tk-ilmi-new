@@ -130,10 +130,13 @@ class SiswaController extends Controller
     public function create(Request $request)
     {
         if ($request->isMethod('GET')) {
+            $users = User::whereHas('role', function ($query) {
+                $query->where('name', 'siswa');
+            })->get();
             return view('dashboard.siswa.create', [
                 'title' => 'Create Siswa',
                 'agamas' => Agama::all(),
-                'users' => User::where('role', 'siswa')->get()
+                'users' => $users
             ]);
         }
 
@@ -179,11 +182,15 @@ class SiswaController extends Controller
     {
         if ($request->isMethod('GET')) {
             $siswa = Siswa::findOrFail($id);
+            $users = User::whereHas('role', function ($query) {
+                $query->where('name', 'siswa');
+            })->get();
+
             return view('dashboard.siswa.edit', [
                 'title' => 'Update Siswa',
                 'siswa' => $siswa,
                 'agamas' => Agama::all(),
-                'users' => User::where('role', 'siswa')->get()
+                'users' => $users,
             ]);
         }
 
