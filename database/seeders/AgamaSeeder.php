@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Agama as ModelsAgama;
 use Illuminate\Database\Seeder;
 
-class Agama extends Seeder
+class AgamaSeeder extends Seeder
 {
     /**
      * Run the database seeds.

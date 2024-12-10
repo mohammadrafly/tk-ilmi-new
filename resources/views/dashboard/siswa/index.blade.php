@@ -5,6 +5,8 @@
 <div class="container mx-auto px-4 py-6">
     <h1 class="text-2xl font-bold text-[#051951] mb-4">{{ $title }}</h1>
 
+    @include('components.message')
+
     <div class="mb-4">
         <a href="{{ route('dashboard.siswa.create') }}" class="bg-[#f18e00] text-white px-4 py-2 rounded-md hover:bg-[#d77900] transition duration-300 ease-in-out">
             Add New Siswa

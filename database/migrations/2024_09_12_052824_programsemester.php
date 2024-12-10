@@ -26,8 +26,8 @@ return new class extends Migration
 
         Schema::create('tahunajaran', function (Blueprint $table) {
             $table->id();
-            $table->int('tahunawal');
-            $table->int('tahunakhir');
+            $table->integer('tahunawal');
+            $table->integer('tahunakhir');
             $table->timestamps();
         });
     }
