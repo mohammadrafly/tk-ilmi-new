@@ -11,23 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('programsemester', function (Blueprint $table) {
+        Schema::create('tahunajaran', function (Blueprint $table) {
             $table->id();
-            $table->string('tahun_ajaran');
-            $table->string('semester');
-            $table->string('bulan');
-            $table->string('topik');
-            $table->string('minggu1');
-            $table->string('minggu2');
-            $table->string('minggu3');
-            $table->string('minggu4');
+            $table->integer('tahunawal')->unsigned();
+            $table->integer('tahunakhir')->unsigned();
             $table->timestamps();
         });
 
-        Schema::create('tahunajaran', function (Blueprint $table) {
+        Schema::create('programsemester', function (Blueprint $table) {
             $table->id();
-            $table->integer('tahunawal');
-            $table->integer('tahunakhir');
+            $table->foreignId('tahun_ajaran')->constrained('tahunajaran')->onDelete('cascade');
+            $table->string('semester');
+            $table->string('bulan');
+            $table->string('topik');
+            $table->text('minggu1')->nullable();
+            $table->text('minggu2')->nullable();
+            $table->text('minggu3')->nullable();
+            $table->text('minggu4')->nullable();
             $table->timestamps();
         });
     }

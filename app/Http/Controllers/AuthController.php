@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -58,11 +59,18 @@ class AuthController extends Controller
             ],
         ]);
 
+        $role = Role::where('name', 'siswa')->first();
+
+        if (!$role) {
+            return back()->withErrors(['error' => 'Terjadi kesalahan, silahkan hubungi admin untuk membuat role siswa.'])
+            ->withInput();
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'siswa'
+            'role_id' => $role->id
         ]);
 
         Siswa::create([

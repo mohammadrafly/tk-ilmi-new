@@ -137,7 +137,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function() {
         $resource = 'kategori_transaksi';
 
         Route::middleware(['permission:read,' . $resource])->get('/', 'index')->name('dashboard.kategori.index');
-        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'store')->name('dashboard.kategori.create');
+        Route::middleware(['permission:create,' . $resource])->match(['GET', 'POST'], '/create', 'create')->name('dashboard.kategori.create');
         Route::middleware(['permission:update,' . $resource])->match(['PUT', 'GET'], '/{id}/edit', 'update')->name('dashboard.kategori.edit');
         Route::middleware(['permission:delete,' . $resource])->delete('/{id}/delete', 'destroy')->name('dashboard.kategori.delete');
     });

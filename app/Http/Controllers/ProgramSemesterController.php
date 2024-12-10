@@ -12,10 +12,11 @@ class ProgramSemesterController extends Controller
     public function show()
     {
         $currentYear = now()->year;
+        $nextYear = now()->year + 1;
 
-        $programSemesters = ProgramSemester::with('tahunajaran')
-            ->whereHas('tahunajaran', function($query) use ($currentYear) {
-                $query->where('tahunakhir', $currentYear);
+        $programSemesters = ProgramSemester::whereHas('tahunajaran', function($query) use ($currentYear, $nextYear) {
+                $query->where('tahunawal', $currentYear)
+                      ->orWhere('tahunakhir', $nextYear);
             })
             ->get();
 
@@ -60,13 +61,13 @@ class ProgramSemesterController extends Controller
         try {
             ProgramSemester::create([
                 'tahun_ajaran' => $request->input('tahun_ajaran'),
+                'semester' => $request->input('semester'),
                 'bulan' => $request->input('bulan'),
                 'topik' => $request->input('topik'),
                 'minggu1' => $request->input('minggu1'),
                 'minggu2' => $request->input('minggu2'),
                 'minggu3' => $request->input('minggu3'),
                 'minggu4' => $request->input('minggu4'),
-                'semester' => $request->input('semester'),
             ]);
 
             return back()->with([

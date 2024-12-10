@@ -6,6 +6,13 @@
     </script>
 @endif
 
+@if(session('error'))
+    <script>
+        window.sessionError = '{{ session('error') }}';
+        window.sweetAlertTitle = 'Error!';
+    </script>
+@endif
+
 @if($errors->any())
     <script>
         window.errorMessages = `{!! implode('<br>', $errors->all()) !!}`;

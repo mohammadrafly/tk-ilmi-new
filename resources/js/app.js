@@ -21,6 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (window.sessionError) {
+        Swal.fire({
+            title: window.sweetAlertTitle,
+            text: window.sessionError,
+            icon: 'error',
+        });
+    }
+
     if (window.errorMessages) {
         Swal.fire({
             icon: 'error',
