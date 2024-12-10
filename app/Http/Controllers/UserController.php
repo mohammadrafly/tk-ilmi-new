@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -22,7 +23,8 @@ class UserController extends Controller
     {
         if ($request->isMethod('GET')) {
             return view('dashboard.users.create', [
-                'title' => 'Create User'
+                'title' => 'Create User',
+                'role' => Role::all(),
             ]);
         }
 
@@ -31,7 +33,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'role' => 'required|string|in:admin,guru,siswa',
+            'role_id' => 'required|string',
             'jk' => 'required|string|in:male,female',
         ]);
 
@@ -47,7 +49,7 @@ class UserController extends Controller
                 'email' => $request->input('email'),
                 'password' => Hash::make($request->input('password')),
                 'foto' => $fotoPath,
-                'role' => $request->input('role'),
+                'role_id' => $request->input('role_id'),
                 'jk' => $request->input('jk'),
             ]);
 
@@ -56,7 +58,7 @@ class UserController extends Controller
                 'redirect' => route('dashboard.user.index')
             ]);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Failed to create user.']);
+            return redirect()->back()->withErrors(['error' => 'Failed to create user.' . $e]);
         }
     }
 
@@ -75,7 +77,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'role' => 'required|string|in:admin,guru,siswa',
+            'role_id' => 'required|string',
             'jk' => 'required|string|in:male,female',
         ]);
 
@@ -90,7 +92,7 @@ class UserController extends Controller
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->input('password'));
             }
-            $user->role = $request->input('role');
+            $user->role_id = $request->input('role_id');
             $user->jk = $request->input('jk');
 
             if ($request->hasFile('foto')) {
