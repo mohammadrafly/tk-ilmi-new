@@ -66,5 +66,6 @@
     </footer>
     <script src="{{asset('assets/home/bootstrap/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('assets/home/js/main.js')}}"></script>
+    @vite('resources/js/app.js')
 </body>
 </html>
