@@ -12,7 +12,7 @@ class AgamaController extends Controller
     {
         return view('dashboard.agama.index', [
             'title' => 'Data Agama',
-            'data' => Agama::all()
+            'data' => Agama::all() // Mengambil data dari model dan mengirimkan ke view."
         ]);
     }
 

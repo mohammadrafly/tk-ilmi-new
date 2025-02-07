@@ -7,14 +7,14 @@
     <hr class="mb-6">
 
     <form method="POST" action="{{ route('dashboard.agama.create') }}" enctype="multipart/form-data">
-        @csrf
+        @csrf // Menampilkan daftar agama yang diambil dari controller.
 
         <div class="mb-6">
             <label for="nama" class="block text-sm font-medium text-[#051951]">Nama Agama</label>
             <div class="mt-2">
                 <input id="nama" type="text" name="nama" value="{{ old('nama') }}"
                        class="w-full border {{ $errors->has('nama') ? 'border-red-500' : 'border-gray-300' }} shadow-sm px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f18e00] focus:border-transparent"
-                       placeholder="Enter Religion Name" required>
+                       placeholder="Enter Religion Name" required> 
                 @error('nama')
                     <div class="text-red-500 text-sm mt-2">{{ $message }}</div>
                 @enderror

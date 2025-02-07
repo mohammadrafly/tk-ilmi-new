@@ -46,12 +46,12 @@ class TransaksiController extends Controller
         ]);
 
         $user = Auth::user();
-        $isAdmin = $user->role === 'admin';
+        $isSiswa = $user->role->name === 'siswa';
 
         $fileName = 'transaksi_' . $request->from_date . '_to_' . $request->to_date . '.xlsx';
 
         return Excel::download(
-            new TransaksiExport($request->from_date, $request->to_date, $user->id, $isAdmin),
+            new TransaksiExport($request->from_date, $request->to_date, $user->id, $isSiswa),
             $fileName
         );
     }
@@ -59,10 +59,11 @@ class TransaksiController extends Controller
     public function index()
     {
         return view('dashboard.transaksi.index', [
+        //dd([
             'title' => 'Data Transaksi',
-            'data' => Auth::user()->role !== 'admin'
-                ? Transaksi::with('user')->where('user_id', Auth::user()->id)->get()
-                : Transaksi::with('user')->get()
+            'data' => Auth::user()->role->name === 'admin' || Auth::user()->role->name === 'kepala_sekolah'
+                ? Transaksi::with('user')->get()
+                : Transaksi::with('user')->where('user_id', Auth::user()->id)->get()
         ]);
     }
 
@@ -297,7 +298,7 @@ class TransaksiController extends Controller
         $listItem = ListTransaksi::with('kategori')->where('kode', $kode)->get();
         $totalHarga = $listItem->sum('harga');
 
-        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+        Config::$serverKey = env('MIDTRANS_SERVER_KEY'); //ambil dari env key
         Config::$isProduction = false;
         Config::$isSanitized = true;
         Config::$is3ds = true;

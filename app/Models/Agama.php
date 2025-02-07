@@ -11,5 +11,5 @@ class Agama extends Model
 
     protected $table = 'agama';
 
-    protected $guarded = [''];
+    protected $guarded = ['']; // "Mengambil, menyimpan, atau menghapus data dari tabel agama."
 }

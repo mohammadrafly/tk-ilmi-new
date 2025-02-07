@@ -69,6 +69,7 @@ class UserController extends Controller
             return view('dashboard.users.edit', [
                 'title' => 'Update User',
                 'user' => $user,
+                'role' => Role::all(),
             ]);
         }
 
@@ -113,7 +114,7 @@ class UserController extends Controller
         }
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
         try {
             $user = User::findOrFail($id);

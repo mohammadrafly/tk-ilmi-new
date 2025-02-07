@@ -58,14 +58,15 @@
         <div class="mb-6">
             <label for="role" class="block text-sm font-medium text-[#051951]">Role</label>
             <div class="mt-2">
-                <select id="role" name="role"
-                        class="w-full border {{ $errors->has('role') ? 'border-red-500' : 'border-gray-300' }} shadow-sm px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f18e00] focus:border-transparent"
+                <select id="role_id" name="role_id"
+                        class="w-full border {{ $errors->has('role_id') ? 'border-red-500' : 'border-gray-300' }} shadow-sm px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f18e00] focus:border-transparent"
                         required>
                     <option value="" disabled>Select Role</option>
-                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
-                    <option value="siswa" {{ old('role', $user->role) == 'siswa' ? 'selected' : '' }}>Siswa</option>
+                    @foreach ($role as $roles)
+                    <option value="{{ $roles->id }}" {{ old('role_id') == $roles->id ? 'selected' : '' }}>{{ $roles->name }}</option>
+                    @endforeach
                 </select>
-                @error('role')
+                @error('role_id')
                     <div class="text-red-500 text-sm mt-2">{{ $message }}</div>
                 @enderror
             </div>

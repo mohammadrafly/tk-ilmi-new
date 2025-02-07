@@ -78,7 +78,7 @@
                                 <td class="px-6 py-4">
                                     @if($item->status !== 'lunas')
                                         @if ($transaksi->metode === 'online')
-                                            @if (Auth::user()->role === 'siswa')
+                                            @if (Auth::user()->role->name === 'siswa')
                                                 @php
                                                     $previousPaymentsCompleted = $loop->index === 0 || $listCicilTransaksi[$loop->index - 1]->status === 'lunas';
                                                 @endphp
@@ -97,7 +97,7 @@
         @else
             @if($transaksi->status !== '2')
                 @if ($transaksi->metode === 'online')
-                    @if (Auth::user()->role === 'siswa')
+                    @if (Auth::user()->role->name === 'siswa')
                         <div class="mt-4 text-center">
                             <button id="payButton" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-semibold">
                                 Pay Now

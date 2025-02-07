@@ -108,7 +108,7 @@
         @else
             @if($transaksi->status !== '2')
                 @if ($transaksi->metode === 'online')
-                    @if (Auth::user()->role === 'siswa')
+                    @if (Auth::user()->role->name === 'siswa')
                         <div class="mt-4 text-center">
                             <button id="payButton" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-semibold">
                                 Pay Now
@@ -116,7 +116,7 @@
                         </div>
                     @endif
                 @else
-                    @if (Auth::user()->role === 'admin')
+                    @if (Auth::user()->role->name === 'admin')
                         <div class="mt-8 text-center">
                             <form action="{{ route('dashboard.transaksi.check.penuh', $transaksi->id) }}" method="POST">
                                 @csrf
